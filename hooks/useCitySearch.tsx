@@ -3,10 +3,16 @@ import { useRef, useState } from 'react';
 
 const API_KEY = process.env.EXPO_PUBLIC_API_RAPID_KEY;
 
+interface AirportResult {
+    title: string;          
+    skyId: string;          
+    entityId: string;       
+  }
+
 export const useCitySearch = () => {
-    const [results, setResults] = useState<string[]>([]);
+    const [results, setResults] = useState<AirportResult[]>([]);
     const [loading, setLoading] = useState(false);
-    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+    const debounceTimeout = useRef<number | null>(null);
 
     const searchCity = async (query: string) => {
         if (debounceTimeout.current) {
@@ -21,17 +27,22 @@ export const useCitySearch = () => {
             try {
                 setLoading(true);
                 await axios.get(
-                    'https://wft-geo-db.p.rapidapi.com/v1/geo/cities',
+                    'https://sky-scrapper.p.rapidapi.com/api/v1/flights/searchAirport',
                     {
-                        params: { namePrefix: query, limit: 5 },
-                        headers: {
-                            'X-RapidAPI-Key': API_KEY,
-                            'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com',
-                        },
+                      params: { query, locale: 'en-US' },
+                      headers: {
+                        'x-rapidapi-key': API_KEY,
+                        'x-rapidapi-host': 'sky-scrapper.p.rapidapi.com',
+                      },
                     }
-                ).then((response) => {
-                    const cityNames = response?.data?.data?.map((city: any) => `${city.city}, ${city.country}`);
-                    setResults(cityNames);
+                  ).then((response) => {
+                      const data = response?.data?.data?.map((item: any) => ({
+                        title: item.presentation.title,
+                        skyId: item.navigation.skyId,
+                        entityId: item.navigation.entityId,
+                      }));
+                      console.log(JSON.stringify(data),'response')
+                    setResults(data);
                 });
             } catch (err) {
                 console.error('City search failed', err);

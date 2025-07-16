@@ -2,10 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import {
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity
 } from 'react-native';
 
 interface Props {
@@ -14,11 +14,10 @@ interface Props {
 }
 
 const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }); 
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 const DateInput: React.FC<Props> = ({ label, onChange }) => {

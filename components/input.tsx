@@ -1,3 +1,4 @@
+import { useCitySearch } from '@/hooks/useCitySearch';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -9,20 +10,26 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useCitySearch } from '../hooks/useCitySearch';
 
 interface Props {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
+  onSelectCode: (skyId: string, entityId: string) => void;
 }
 
-const AirportInput: React.FC<Props> = ({ placeholder, value, onChangeText }) => {
+const AirportInput: React.FC<Props> = ({
+  placeholder,
+  value,
+  onChangeText,
+  onSelectCode,
+}) => {
   const [isFocused, setIsFocused] = useState(false);
   const { results, searchCity, loading } = useCitySearch();
 
-  const handleSelectCity = (city: string) => {
-    onChangeText(city);
+  const handleSelect = (title: string, skyId: string, entityId: string) => {
+    onChangeText(title);
+    onSelectCode(skyId, entityId);
     setIsFocused(false);
     Keyboard.dismiss();
   };
@@ -41,7 +48,7 @@ const AirportInput: React.FC<Props> = ({ placeholder, value, onChangeText }) => 
           placeholderTextColor="#ccc"
           style={styles.input}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)} // allow touch to register
+          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         />
       </View>
 
@@ -52,8 +59,12 @@ const AirportInput: React.FC<Props> = ({ placeholder, value, onChangeText }) => 
           style={styles.dropdown}
           keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleSelectCity(item)}>
-              <Text style={styles.dropdownItem}>{item}</Text>
+            <TouchableOpacity
+              onPress={() =>
+                handleSelect(item.title, item.skyId, item.entityId)
+              }
+            >
+              <Text style={styles.dropdownItem}>{item.title}</Text>
             </TouchableOpacity>
           )}
         />
@@ -66,8 +77,9 @@ export default AirportInput;
 
 const styles = StyleSheet.create({
   wrapper: {
+    marginBottom: 12,
     position: 'relative',
-    zIndex: 2,
+    zIndex: 10,
   },
   container: {
     backgroundColor: '#2a2b2f',
@@ -86,8 +98,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1f23',
     borderRadius: 8,
     marginTop: 4,
-    maxHeight: 150,
+    maxHeight: 180,
     elevation: 5,
+    position: 'absolute',
+    top: 60,
+    width: '100%',
+    zIndex: 100,
   },
   dropdownItem: {
     paddingVertical: 12,
